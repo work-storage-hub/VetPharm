@@ -1,4 +1,4 @@
-﻿#include "MyForm.h"
+﻿#include "MainForm.h"
 
 using namespace System;
 using namespace System::Windows::Forms;
@@ -7,6 +7,6 @@ using namespace System::Windows::Forms;
 void main(array<String^>^ arg) {
 	Application::EnableVisualStyles();
 	Application::SetCompatibleTextRenderingDefault(false);
-	VetPharm::MyForm form;
+	VetPharm::MainForm form;
 	Application::Run(% form);
 }
