@@ -5,9 +5,9 @@ namespace VetPharm {
 	using namespace System;
 	using namespace System::ComponentModel;
 	using namespace System::Collections;
-	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+	using namespace System::Windows::Forms;
 
 	/// <summary>
 	/// Summary for AddProductForm
@@ -15,46 +15,22 @@ namespace VetPharm {
 	public ref class AddProductForm : public System::Windows::Forms::Form
 	{
 	private:
-		DataTable^ dataTable;
+		DataTable^ productsTable;
+		String^ databasePath;
+		DataTable^ categoriesTable;
+		DataTable^ locationsTable;
+
 	public:
-		AddProductForm(System::Data::DataTable^ dt)
+		AddProductForm(System::Data::DataTable^ dt, String^ dbPath)
 		{
-			this->dataTable = dt;
+			this->productsTable = dt;
+			this->databasePath = dbPath;
 			InitializeComponent();
-			this->category_combo_box->Items->AddRange(gcnew cli::array<System::Object^> {
-				L"Антибиотики",
-				L"Корма",
-				L"Мазь",
-				L"Витамины",
-				L"Антигельминтики",
-				L"Противовоспалительные",
-				L"Пробиотики"
-			});
-			this->category_combo_box->SelectedIndex = 0;
-
-			this->unit_combo_box->Items->AddRange(gcnew cli::array<System::Object^> {
-				L"миллилитры",
-				L"граммы",
-				L"таблетки",
-				L"штуки",
-			});
-			this->unit_combo_box->SelectedIndex = 0;
-
-			this->location_combo_box->Items->Clear();
-			this->location_combo_box->Items->AddRange(gcnew cli::array<System::Object^> {
-				L"Стенд 1",
-				L"Стенд 2",
-				L"Стенд 3",
-				L"Стенд 4",
-				L"Склад"
-			});
-			this->location_combo_box->SelectedIndex = 0;
+			InitializeComboBoxes();
+			LoadLookupData();
 		}
 
 	protected:
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
 		~AddProductForm()
 		{
 			if (components)
@@ -62,54 +38,35 @@ namespace VetPharm {
 				delete components;
 			}
 		}
+
+	private:
+		void InitializeComboBoxes();
+		void LoadLookupData();
+		void ConfigureLookupComboBox(System::Windows::Forms::ComboBox^ comboBox, DataTable^ sourceTable);
+		bool InsertProductIntoDatabase(int% newProductId);
+
 	private: System::Windows::Forms::Label^ name_label;
-	protected:
 	private: System::Windows::Forms::TextBox^ name_text_box;
 	private: System::Windows::Forms::Label^ category_label;
 	private: System::Windows::Forms::ComboBox^ category_combo_box;
 	private: System::Windows::Forms::Label^ quantity_label;
 	private: System::Windows::Forms::NumericUpDown^ quantity_numericUpDown;
-
-
-
-
-
-
-
-
 	private: System::Windows::Forms::Label^ unit_label;
 	private: System::Windows::Forms::ComboBox^ location_combo_box;
-
-
 	private: System::Windows::Forms::Label^ location_label;
 	private: System::Windows::Forms::Button^ add_button;
 	private: System::Windows::Forms::Button^ exit_button;
 	private: System::Windows::Forms::Label^ add_product_label;
 	private: System::Windows::Forms::ComboBox^ unit_combo_box;
 	private: System::Windows::Forms::NumericUpDown^ packaging_size_numericUpDown;
-
 	private: System::Windows::Forms::Label^ packaging_size_label;
 	private: System::Windows::Forms::NumericUpDown^ price_numericUpDown;
 	private: System::Windows::Forms::Label^ price_label;
 
-
-
-
-
-
-	protected:
-
 	private:
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
-		System::ComponentModel::Container ^components;
+		System::ComponentModel::Container^ components;
 
 #pragma region Windows Form Designer generated code
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
 		void InitializeComponent(void)
 		{
 			this->name_label = (gcnew System::Windows::Forms::Label());
@@ -137,8 +94,8 @@ namespace VetPharm {
 			// name_label
 			// 
 			this->name_label->AutoSize = true;
-			this->name_label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
+			this->name_label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
 			this->name_label->Location = System::Drawing::Point(66, 88);
 			this->name_label->Name = L"name_label";
 			this->name_label->Size = System::Drawing::Size(99, 25);
@@ -147,8 +104,8 @@ namespace VetPharm {
 			// 
 			// name_text_box
 			// 
-			this->name_text_box->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
+			this->name_text_box->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
 			this->name_text_box->Location = System::Drawing::Point(222, 85);
 			this->name_text_box->Name = L"name_text_box";
 			this->name_text_box->Size = System::Drawing::Size(277, 30);
@@ -157,8 +114,8 @@ namespace VetPharm {
 			// category_label
 			// 
 			this->category_label->AutoSize = true;
-			this->category_label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
+			this->category_label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
 			this->category_label->Location = System::Drawing::Point(66, 140);
 			this->category_label->Name = L"category_label";
 			this->category_label->Size = System::Drawing::Size(109, 25);
@@ -167,8 +124,9 @@ namespace VetPharm {
 			// 
 			// category_combo_box
 			// 
-			this->category_combo_box->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
+			this->category_combo_box->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->category_combo_box->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
 			this->category_combo_box->FormattingEnabled = true;
 			this->category_combo_box->Location = System::Drawing::Point(222, 137);
 			this->category_combo_box->Name = L"category_combo_box";
@@ -178,9 +136,9 @@ namespace VetPharm {
 			// quantity_label
 			// 
 			this->quantity_label->AutoSize = true;
-			this->quantity_label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
-			this->quantity_label->Location = System::Drawing::Point(66, 195);
+			this->quantity_label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
+			this->quantity_label->Location = System::Drawing::Point(66, 352);
 			this->quantity_label->Name = L"quantity_label";
 			this->quantity_label->Size = System::Drawing::Size(123, 25);
 			this->quantity_label->TabIndex = 4;
@@ -190,8 +148,8 @@ namespace VetPharm {
 			// 
 			this->quantity_numericUpDown->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
 				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
-			this->quantity_numericUpDown->Location = System::Drawing::Point(222, 193);
-			this->quantity_numericUpDown->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1874919424, 2328306, 0, 0 });
+			this->quantity_numericUpDown->Location = System::Drawing::Point(222, 350);
+			this->quantity_numericUpDown->Maximum = System::Decimal(gcnew cli::array<System::Int32>(4) { 1874919424, 2328306, 0, 0 });
 			this->quantity_numericUpDown->Name = L"quantity_numericUpDown";
 			this->quantity_numericUpDown->Size = System::Drawing::Size(277, 30);
 			this->quantity_numericUpDown->TabIndex = 5;
@@ -199,9 +157,9 @@ namespace VetPharm {
 			// unit_label
 			// 
 			this->unit_label->AutoSize = true;
-			this->unit_label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
-			this->unit_label->Location = System::Drawing::Point(66, 248);
+			this->unit_label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
+			this->unit_label->Location = System::Drawing::Point(66, 195);
 			this->unit_label->Name = L"unit_label";
 			this->unit_label->Size = System::Drawing::Size(92, 25);
 			this->unit_label->TabIndex = 6;
@@ -209,10 +167,11 @@ namespace VetPharm {
 			// 
 			// location_combo_box
 			// 
-			this->location_combo_box->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
+			this->location_combo_box->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->location_combo_box->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
 			this->location_combo_box->FormattingEnabled = true;
-			this->location_combo_box->Location = System::Drawing::Point(222, 298);
+			this->location_combo_box->Location = System::Drawing::Point(222, 245);
 			this->location_combo_box->Name = L"location_combo_box";
 			this->location_combo_box->Size = System::Drawing::Size(277, 33);
 			this->location_combo_box->TabIndex = 9;
@@ -220,9 +179,9 @@ namespace VetPharm {
 			// location_label
 			// 
 			this->location_label->AutoSize = true;
-			this->location_label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
-			this->location_label->Location = System::Drawing::Point(66, 301);
+			this->location_label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
+			this->location_label->Location = System::Drawing::Point(66, 248);
 			this->location_label->Name = L"location_label";
 			this->location_label->Size = System::Drawing::Size(92, 25);
 			this->location_label->TabIndex = 8;
@@ -232,8 +191,8 @@ namespace VetPharm {
 			// 
 			this->add_button->BackColor = System::Drawing::Color::Lime;
 			this->add_button->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-			this->add_button->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
+			this->add_button->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
 			this->add_button->ForeColor = System::Drawing::Color::Black;
 			this->add_button->Location = System::Drawing::Point(117, 459);
 			this->add_button->Name = L"add_button";
@@ -247,8 +206,8 @@ namespace VetPharm {
 			// 
 			this->exit_button->BackColor = System::Drawing::Color::Red;
 			this->exit_button->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-			this->exit_button->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
+			this->exit_button->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
 			this->exit_button->ForeColor = System::Drawing::SystemColors::ControlText;
 			this->exit_button->Location = System::Drawing::Point(334, 459);
 			this->exit_button->Name = L"exit_button";
@@ -271,10 +230,11 @@ namespace VetPharm {
 			// 
 			// unit_combo_box
 			// 
-			this->unit_combo_box->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
+			this->unit_combo_box->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->unit_combo_box->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
 			this->unit_combo_box->FormattingEnabled = true;
-			this->unit_combo_box->Location = System::Drawing::Point(222, 245);
+			this->unit_combo_box->Location = System::Drawing::Point(222, 192);
 			this->unit_combo_box->Name = L"unit_combo_box";
 			this->unit_combo_box->Size = System::Drawing::Size(277, 33);
 			this->unit_combo_box->TabIndex = 13;
@@ -283,11 +243,8 @@ namespace VetPharm {
 			// 
 			this->packaging_size_numericUpDown->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
 				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
-			this->packaging_size_numericUpDown->Location = System::Drawing::Point(222, 351);
-			this->packaging_size_numericUpDown->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {
-				-1530494976, 232830,
-					0, 0
-			});
+			this->packaging_size_numericUpDown->Location = System::Drawing::Point(222, 299);
+			this->packaging_size_numericUpDown->Maximum = System::Decimal(gcnew cli::array<System::Int32>(4) { -1530494976, 232830, 0, 0 });
 			this->packaging_size_numericUpDown->Name = L"packaging_size_numericUpDown";
 			this->packaging_size_numericUpDown->Size = System::Drawing::Size(277, 30);
 			this->packaging_size_numericUpDown->TabIndex = 15;
@@ -297,7 +254,7 @@ namespace VetPharm {
 			this->packaging_size_label->AutoSize = true;
 			this->packaging_size_label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
 				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
-			this->packaging_size_label->Location = System::Drawing::Point(66, 353);
+			this->packaging_size_label->Location = System::Drawing::Point(66, 301);
 			this->packaging_size_label->Name = L"packaging_size_label";
 			this->packaging_size_label->Size = System::Drawing::Size(92, 25);
 			this->packaging_size_label->TabIndex = 14;
@@ -308,7 +265,7 @@ namespace VetPharm {
 			this->price_numericUpDown->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
 				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
 			this->price_numericUpDown->Location = System::Drawing::Point(222, 401);
-			this->price_numericUpDown->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { -1981284352, -1966660860, 0, 0 });
+			this->price_numericUpDown->Maximum = System::Decimal(gcnew cli::array<System::Int32>(4) { -1981284352, -1966660860, 0, 0 });
 			this->price_numericUpDown->Name = L"price_numericUpDown";
 			this->price_numericUpDown->Size = System::Drawing::Size(277, 30);
 			this->price_numericUpDown->TabIndex = 17;
@@ -316,8 +273,8 @@ namespace VetPharm {
 			// price_label
 			// 
 			this->price_label->AutoSize = true;
-			this->price_label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
+			this->price_label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular,
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
 			this->price_label->Location = System::Drawing::Point(66, 403);
 			this->price_label->Name = L"price_label";
 			this->price_label->Size = System::Drawing::Size(58, 25);
@@ -354,11 +311,11 @@ namespace VetPharm {
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->price_numericUpDown))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
-
 		}
 
 #pragma endregion
+
 	private: System::Void exit_button_Click(System::Object^ sender, System::EventArgs^ e);
 	private: System::Void add_button_Click(System::Object^ sender, System::EventArgs^ e);
-};
+	};
 }

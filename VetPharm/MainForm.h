@@ -15,7 +15,9 @@ namespace VetPharm {
         MainForm(void)
         {
             InitializeComponent();
+            databasePath = ResolveDatabasePath();
             InitializeDataTable();
+            LoadFilterComboBoxes();
         }
 
     protected:
@@ -29,6 +31,7 @@ namespace VetPharm {
 
     private:
         System::Data::DataTable^ dataTable;
+        System::String^ databasePath;
     private: System::Windows::Forms::TextBox^ search_text_box;
     private: System::Windows::Forms::Label^ search_label;
 
@@ -103,15 +106,10 @@ namespace VetPharm {
             // 
             this->category_combo_box->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F));
             this->category_combo_box->FormattingEnabled = true;
-            this->category_combo_box->Items->AddRange(gcnew cli::array< System::Object^  >(6) {
-                L"Все", L"Антибиотики", L"Корма", L"Мазь",
-                    L"Витамины", L"Антигельминтики"
-            });
             this->category_combo_box->Location = System::Drawing::Point(212, 52);
             this->category_combo_box->Name = L"category_combo_box";
             this->category_combo_box->Size = System::Drawing::Size(121, 28);
             this->category_combo_box->TabIndex = 3;
-            this->category_combo_box->Text = L"Категория";
             this->category_combo_box->SelectedIndexChanged += gcnew System::EventHandler(this, &MainForm::category_combo_box_SelectedIndexChanged);
             // 
             // add_button
@@ -129,15 +127,10 @@ namespace VetPharm {
             // 
             this->location_combo_box->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F));
             this->location_combo_box->FormattingEnabled = true;
-            this->location_combo_box->Items->AddRange(gcnew cli::array< System::Object^  >(5) {
-                L"Все", L"Склад 1", L"Склад 2", L"Аптека",
-                    L"Магазин"
-            });
             this->location_combo_box->Location = System::Drawing::Point(339, 52);
             this->location_combo_box->Name = L"location_combo_box";
             this->location_combo_box->Size = System::Drawing::Size(121, 28);
             this->location_combo_box->TabIndex = 6;
-            this->location_combo_box->Text = L"Локация";
             this->location_combo_box->SelectedIndexChanged += gcnew System::EventHandler(this, &MainForm::location_combo_box_SelectedIndexChanged);
             // 
             // search_button
@@ -186,7 +179,9 @@ namespace VetPharm {
 
     private:
         void InitializeDataTable();
-        void AddTestData();
+        void LoadFilterComboBoxes();
+        System::String^ ResolveDatabasePath();
+        System::String^ EscapeRowFilterValue(System::String^ value);
         void ShowAddDialog();
         void AddRecord(String^ name, String^ category, int packaging_size, int quantity, String^ unit, Decimal price, String^ location);
         void Search(String^ searchText);
