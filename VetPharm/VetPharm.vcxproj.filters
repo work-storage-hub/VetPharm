@@ -35,6 +35,9 @@
     <ClInclude Include="AddProductForm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SQLite\sqlite3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\x64\Debug\free-icon-medicine-1839856.ico">

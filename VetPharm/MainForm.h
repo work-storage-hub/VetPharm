@@ -1,203 +1,114 @@
 ﻿#pragma once
 
-namespace VetPharm {
-
-    using namespace System;
-    using namespace System::ComponentModel;
-    using namespace System::Collections;
-    using namespace System::Windows::Forms;
-    using namespace System::Data;
-    using namespace System::Drawing;
-
+namespace VetPharm
+{
     public ref class MainForm : public System::Windows::Forms::Form
     {
     public:
-        MainForm(void)
-        {
-            InitializeComponent();
-            InitializeDataTable();
-        }
+        MainForm(void);
 
     protected:
-        ~MainForm()
-        {
-            if (components)
-            {
-                delete components;
-            }
-        }
+        ~MainForm();
 
     private:
-        System::Data::DataTable^ dataTable;
-    private: System::Windows::Forms::TextBox^ search_text_box;
-    private: System::Windows::Forms::Label^ search_label;
-
-
-        System::Windows::Forms::DataGridView^ dataGridView1;
-    private: System::Windows::Forms::ComboBox^ category_combo_box;
-
-    private: System::Windows::Forms::Button^ add_button;
-    private: System::Windows::Forms::ComboBox^ location_combo_box;
-
-
-    private: System::Windows::Forms::Button^ search_button;
-
-
-        System::Windows::Forms::Form^ addForm;
-        System::Windows::Forms::TextBox^ txtName;
-        System::Windows::Forms::ComboBox^ cmbCategory;
-        System::Windows::Forms::NumericUpDown^ numQuantity;
-        System::Windows::Forms::TextBox^ txtUnit;
-        System::Windows::Forms::ComboBox^ cmbLocation;
-    private: System::Windows::Forms::Button^ clients_button;
-
-
         System::ComponentModel::Container^ components;
+        System::String^ databasePath;
 
-#pragma region Windows Form Designer generated code
-        void InitializeComponent(void)
-        {
-            System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MainForm::typeid));
-            this->search_text_box = (gcnew System::Windows::Forms::TextBox());
-            this->search_label = (gcnew System::Windows::Forms::Label());
-            this->dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
-            this->category_combo_box = (gcnew System::Windows::Forms::ComboBox());
-            this->add_button = (gcnew System::Windows::Forms::Button());
-            this->location_combo_box = (gcnew System::Windows::Forms::ComboBox());
-            this->search_button = (gcnew System::Windows::Forms::Button());
-            this->clients_button = (gcnew System::Windows::Forms::Button());
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView1))->BeginInit();
-            this->SuspendLayout();
-            // 
-            // search_text_box
-            // 
-            this->search_text_box->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F));
-            this->search_text_box->Location = System::Drawing::Point(72, 52);
-            this->search_text_box->Name = L"search_text_box";
-            this->search_text_box->Size = System::Drawing::Size(134, 27);
-            this->search_text_box->TabIndex = 0;
-            // 
-            // search_label
-            // 
-            this->search_label->AutoSize = true;
-            this->search_label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F));
-            this->search_label->Location = System::Drawing::Point(12, 55);
-            this->search_label->Name = L"search_label";
-            this->search_label->Size = System::Drawing::Size(65, 20);
-            this->search_label->TabIndex = 1;
-            this->search_label->Text = L"Поиск:";
-            // 
-            // dataGridView1
-            // 
-            this->dataGridView1->AllowUserToAddRows = false;
-            this->dataGridView1->AllowUserToDeleteRows = false;
-            this->dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
-            this->dataGridView1->Location = System::Drawing::Point(16, 163);
-            this->dataGridView1->Name = L"dataGridView1";
-            this->dataGridView1->RowHeadersWidth = 51;
-            this->dataGridView1->RowTemplate->Height = 24;
-            this->dataGridView1->Size = System::Drawing::Size(1306, 556);
-            this->dataGridView1->TabIndex = 2;
-            // 
-            // category_combo_box
-            // 
-            this->category_combo_box->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F));
-            this->category_combo_box->FormattingEnabled = true;
-            this->category_combo_box->Items->AddRange(gcnew cli::array< System::Object^  >(6) {
-                L"Все", L"Антибиотики", L"Корма", L"Мазь",
-                    L"Витамины", L"Антигельминтики"
-            });
-            this->category_combo_box->Location = System::Drawing::Point(212, 52);
-            this->category_combo_box->Name = L"category_combo_box";
-            this->category_combo_box->Size = System::Drawing::Size(121, 28);
-            this->category_combo_box->TabIndex = 3;
-            this->category_combo_box->Text = L"Категория";
-            this->category_combo_box->SelectedIndexChanged += gcnew System::EventHandler(this, &MainForm::category_combo_box_SelectedIndexChanged);
-            // 
-            // add_button
-            // 
-            this->add_button->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F));
-            this->add_button->Location = System::Drawing::Point(12, 12);
-            this->add_button->Name = L"add_button";
-            this->add_button->Size = System::Drawing::Size(115, 34);
-            this->add_button->TabIndex = 4;
-            this->add_button->Text = L"Добавить";
-            this->add_button->UseVisualStyleBackColor = true;
-            this->add_button->Click += gcnew System::EventHandler(this, &MainForm::add_button_Click);
-            // 
-            // location_combo_box
-            // 
-            this->location_combo_box->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F));
-            this->location_combo_box->FormattingEnabled = true;
-            this->location_combo_box->Items->AddRange(gcnew cli::array< System::Object^  >(5) {
-                L"Все", L"Склад 1", L"Склад 2", L"Аптека",
-                    L"Магазин"
-            });
-            this->location_combo_box->Location = System::Drawing::Point(339, 52);
-            this->location_combo_box->Name = L"location_combo_box";
-            this->location_combo_box->Size = System::Drawing::Size(121, 28);
-            this->location_combo_box->TabIndex = 6;
-            this->location_combo_box->Text = L"Локация";
-            this->location_combo_box->SelectedIndexChanged += gcnew System::EventHandler(this, &MainForm::location_combo_box_SelectedIndexChanged);
-            // 
-            // search_button
-            // 
-            this->search_button->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F));
-            this->search_button->Location = System::Drawing::Point(466, 49);
-            this->search_button->Name = L"search_button";
-            this->search_button->Size = System::Drawing::Size(102, 32);
-            this->search_button->TabIndex = 7;
-            this->search_button->Text = L"Найти";
-            this->search_button->UseVisualStyleBackColor = true;
-            this->search_button->Click += gcnew System::EventHandler(this, &MainForm::search_button_Click);
-            // 
-            // clients_button
-            // 
-            this->clients_button->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F));
-            this->clients_button->Location = System::Drawing::Point(133, 12);
-            this->clients_button->Name = L"clients_button";
-            this->clients_button->Size = System::Drawing::Size(115, 34);
-            this->clients_button->TabIndex = 8;
-            this->clients_button->Text = L"Клиенты";
-            this->clients_button->UseVisualStyleBackColor = true;
-            // 
-            // MainForm
-            // 
-            this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
-            this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-            this->ClientSize = System::Drawing::Size(1334, 731);
-            this->Controls->Add(this->clients_button);
-            this->Controls->Add(this->search_button);
-            this->Controls->Add(this->location_combo_box);
-            this->Controls->Add(this->add_button);
-            this->Controls->Add(this->category_combo_box);
-            this->Controls->Add(this->dataGridView1);
-            this->Controls->Add(this->search_text_box);
-            this->Controls->Add(this->search_label);
-            this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
-            this->Name = L"MainForm";
-            this->Text = L"VetPharm";
-            (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView1))->EndInit();
-            this->ResumeLayout(false);
-            this->PerformLayout();
+        System::Windows::Forms::Label^ titleLabel;
+        System::Windows::Forms::Label^ subtitleLabel;
+        System::Windows::Forms::TabControl^ mainTabs;
 
-        }
-#pragma endregion
+        System::Windows::Forms::TabPage^ inventoryTab;
+        System::Windows::Forms::TextBox^ productSearchBox;
+        System::Windows::Forms::ComboBox^ productCategoryFilter;
+        System::Windows::Forms::ComboBox^ productLocationFilter;
+        System::Windows::Forms::DataGridView^ productsGrid;
+        System::Windows::Forms::Button^ addProductButton;
+        System::Windows::Forms::Button^ editProductButton;
+        System::Windows::Forms::Button^ deleteProductButton;
 
-    private:
-        void InitializeDataTable();
-        void AddTestData();
-        void ShowAddDialog();
-        void AddRecord(String^ name, String^ category, int packaging_size, int quantity, String^ unit, Decimal price, String^ location);
-        void Search(String^ searchText);
-        void FilterByCategory(String^ category);
-        void FilterByLocation(String^ location);
-        void ApplyCombinedFilter();
-        void PerformSearch();
+        System::Windows::Forms::TabPage^ categoriesTab;
+        System::Windows::Forms::DataGridView^ categoriesGrid;
+        System::Windows::Forms::Button^ addCategoryButton;
+        System::Windows::Forms::Button^ editCategoryButton;
+        System::Windows::Forms::Button^ deleteCategoryButton;
 
-        System::Void add_button_Click(System::Object^ sender, System::EventArgs^ e);
-        System::Void search_button_Click(System::Object^ sender, System::EventArgs^ e);
-        System::Void category_combo_box_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
-        System::Void location_combo_box_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
+        System::Windows::Forms::TabPage^ locationsTab;
+        System::Windows::Forms::DataGridView^ locationsGrid;
+        System::Windows::Forms::Button^ addLocationButton;
+        System::Windows::Forms::Button^ editLocationButton;
+        System::Windows::Forms::Button^ deleteLocationButton;
+
+        System::Windows::Forms::TabPage^ petsTab;
+        System::Windows::Forms::TextBox^ petSearchBox;
+        System::Windows::Forms::DataGridView^ petsGrid;
+        System::Windows::Forms::DataGridView^ petHistoryGrid;
+        System::Windows::Forms::Button^ addPetButton;
+        System::Windows::Forms::Button^ editPetButton;
+        System::Windows::Forms::Button^ deletePetButton;
+        System::Windows::Forms::Button^ addHistoryButton;
+        System::Windows::Forms::Button^ deleteHistoryButton;
+        System::Windows::Forms::Label^ allergyAlertLabel;
+
+        System::Data::DataTable^ productsTable;
+        System::Data::DataTable^ categoriesTable;
+        System::Data::DataTable^ locationsTable;
+        System::Data::DataTable^ petsTable;
+        System::Data::DataTable^ historyTable;
+
+        void BuildUi();
+        void BuildInventoryTab();
+        void BuildLookupTabs();
+        void BuildPetsTab();
+        void CreateBaseTables();
+
+        void LoadProducts();
+        void LoadCategories();
+        void LoadLocations();
+        void LoadPets();
+        void LoadPetHistory(int petId);
+        void LoadProductFilters();
+
+        void ApplyProductFilter();
+        void ApplyPetFilter();
+
+        bool SaveProduct(bool isEdit);
+        bool DeleteSelectedProduct();
+
+        bool SaveLookup(System::String^ tableName, bool isEdit);
+        bool DeleteLookup(System::String^ tableName, System::Windows::Forms::DataGridView^ grid);
+
+        bool SavePet(bool isEdit);
+        bool DeleteSelectedPet();
+        bool SaveHistoryEntry();
+        bool DeleteSelectedHistoryEntry();
+        bool ShowAllergyWarningIfNeeded(System::String^ allergies, System::String^ productName);
+
+        int GetSelectedId(System::Windows::Forms::DataGridView^ grid);
+        System::Data::DataRow^ GetSelectedRow(System::Windows::Forms::DataGridView^ grid);
+        System::Data::DataTable^ BuildProductsLookup();
+        void UpdateAllergyAlert();
+
+        System::Void productSearchBox_TextChanged(System::Object^ sender, System::EventArgs^ e);
+        System::Void productFilterChanged(System::Object^ sender, System::EventArgs^ e);
+        System::Void addProductButton_Click(System::Object^ sender, System::EventArgs^ e);
+        System::Void editProductButton_Click(System::Object^ sender, System::EventArgs^ e);
+        System::Void deleteProductButton_Click(System::Object^ sender, System::EventArgs^ e);
+
+        System::Void addCategoryButton_Click(System::Object^ sender, System::EventArgs^ e);
+        System::Void editCategoryButton_Click(System::Object^ sender, System::EventArgs^ e);
+        System::Void deleteCategoryButton_Click(System::Object^ sender, System::EventArgs^ e);
+
+        System::Void addLocationButton_Click(System::Object^ sender, System::EventArgs^ e);
+        System::Void editLocationButton_Click(System::Object^ sender, System::EventArgs^ e);
+        System::Void deleteLocationButton_Click(System::Object^ sender, System::EventArgs^ e);
+
+        System::Void addPetButton_Click(System::Object^ sender, System::EventArgs^ e);
+        System::Void editPetButton_Click(System::Object^ sender, System::EventArgs^ e);
+        System::Void deletePetButton_Click(System::Object^ sender, System::EventArgs^ e);
+        System::Void addHistoryButton_Click(System::Object^ sender, System::EventArgs^ e);
+        System::Void deleteHistoryButton_Click(System::Object^ sender, System::EventArgs^ e);
+        System::Void petSearchBox_TextChanged(System::Object^ sender, System::EventArgs^ e);
+        System::Void petsGrid_SelectionChanged(System::Object^ sender, System::EventArgs^ e);
     };
 }
