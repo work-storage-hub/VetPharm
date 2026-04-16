@@ -40,13 +40,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="free-icon-medicine-1839856.ico">
+    <Image Include="..\x64\Debug\free-icon-medicine-1839856.ico">
       <Filter>Resource Files</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="icon.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>
