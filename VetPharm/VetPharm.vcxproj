@@ -141,6 +141,9 @@
     <ClInclude Include="SQLite\sqlite3.h" />
   </ItemGroup>
   <ItemGroup>
+    <ResourceCompile Include="icon.rc" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="AddProductForm.resx">
       <DependentUpon>AddProductForm.h</DependentUpon>
     </EmbeddedResource>
@@ -149,7 +152,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\x64\Debug\free-icon-medicine-1839856.ico" />
+    <Image Include="free-icon-medicine-1839856.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,220 +1,155 @@
-﻿#include "MainForm.h"
-#include "AddProductForm.h"
-#include <sqlite3.h>
-#include <string>
-#include <cstring>
-#include <vcclr.h>
+﻿#include "AddProductForm.h"
+#include "DbHelpers.h"
 
-using namespace System::IO;
-using namespace System::Text;
-
-namespace
+namespace VetPharm
 {
-    static std::string ToUtf8String(System::String^ value)
+    void AddProductForm::BuildUi()
     {
-        if (value == nullptr)
-        {
-            return std::string();
-        }
+        productId = 0;
 
-        array<System::Byte>^ bytes = Encoding::UTF8->GetBytes(value);
-        std::string result(bytes->Length, '\0');
-        if (bytes->Length > 0)
-        {
-            pin_ptr<System::Byte> pinnedBytes = &bytes[0];
-            memcpy(&result[0], pinnedBytes, bytes->Length);
-        }
+        Theme::ApplyForm(this, isEditMode ? L"Редактирование препарата" : L"Добавление препарата");
+        this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
+        this->ClientSize = System::Drawing::Size(560, 380);
+        this->MinimizeBox = false;
+        this->MaximizeBox = false;
 
-        return result;
+        AddLabel(L"Название", 28, 24);
+        nameTextBox = AddTextBox(28, 50, 240);
+
+        AddLabel(L"Категория", 292, 24);
+        categoryComboBox = gcnew System::Windows::Forms::ComboBox();
+        categoryComboBox->Location = System::Drawing::Point(292, 50);
+        categoryComboBox->Size = System::Drawing::Size(240, 31);
+        categoryComboBox->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+        Theme::StyleInput(categoryComboBox);
+
+        AddLabel(L"Единица", 28, 98);
+        unitComboBox = gcnew System::Windows::Forms::ComboBox();
+        unitComboBox->Location = System::Drawing::Point(28, 124);
+        unitComboBox->Size = System::Drawing::Size(240, 31);
+        unitComboBox->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+        unitComboBox->Items->AddRange(gcnew cli::array<System::Object^> { L"миллилитры", L"граммы", L"таблетки", L"штуки", L"килограммы" });
+        unitComboBox->SelectedIndex = 0;
+        Theme::StyleInput(unitComboBox);
+
+        AddLabel(L"Локация", 292, 98);
+        locationComboBox = gcnew System::Windows::Forms::ComboBox();
+        locationComboBox->Location = System::Drawing::Point(292, 124);
+        locationComboBox->Size = System::Drawing::Size(240, 31);
+        locationComboBox->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+        Theme::StyleInput(locationComboBox);
+
+        AddLabel(L"Фасовка", 28, 172);
+        packagingNumeric = gcnew System::Windows::Forms::NumericUpDown();
+        packagingNumeric->Location = System::Drawing::Point(28, 198);
+        packagingNumeric->Size = System::Drawing::Size(240, 30);
+        packagingNumeric->Maximum = System::Decimal(100000);
+        Theme::StyleInput(packagingNumeric);
+
+        AddLabel(L"Количество", 292, 172);
+        quantityNumeric = gcnew System::Windows::Forms::NumericUpDown();
+        quantityNumeric->Location = System::Drawing::Point(292, 198);
+        quantityNumeric->Size = System::Drawing::Size(240, 30);
+        quantityNumeric->Maximum = System::Decimal(100000);
+        Theme::StyleInput(quantityNumeric);
+
+        AddLabel(L"Цена", 28, 246);
+        priceNumeric = gcnew System::Windows::Forms::NumericUpDown();
+        priceNumeric->Location = System::Drawing::Point(28, 272);
+        priceNumeric->Size = System::Drawing::Size(240, 30);
+        priceNumeric->Maximum = System::Decimal(1000000);
+        Theme::StyleInput(priceNumeric);
+
+        System::Windows::Forms::Button^ saveButton = gcnew System::Windows::Forms::Button();
+        saveButton->Text = isEditMode ? L"Сохранить" : L"Добавить";
+        saveButton->Location = System::Drawing::Point(314, 322);
+        saveButton->Size = System::Drawing::Size(104, 36);
+        saveButton->DialogResult = System::Windows::Forms::DialogResult::OK;
+        Theme::StylePrimaryButton(saveButton);
+
+        System::Windows::Forms::Button^ cancelButton = gcnew System::Windows::Forms::Button();
+        cancelButton->Text = L"Отмена";
+        cancelButton->Location = System::Drawing::Point(428, 322);
+        cancelButton->Size = System::Drawing::Size(104, 36);
+        cancelButton->DialogResult = System::Windows::Forms::DialogResult::Cancel;
+        Theme::StyleSecondaryButton(cancelButton);
+
+        this->Controls->Add(categoryComboBox);
+        this->Controls->Add(unitComboBox);
+        this->Controls->Add(locationComboBox);
+        this->Controls->Add(packagingNumeric);
+        this->Controls->Add(quantityNumeric);
+        this->Controls->Add(priceNumeric);
+        this->Controls->Add(saveButton);
+        this->Controls->Add(cancelButton);
+        this->AcceptButton = saveButton;
+        this->CancelButton = cancelButton;
+
+        LoadLookups();
     }
 
-    static System::String^ FromUtf8Column(sqlite3_stmt* stmt, int index)
+    void AddProductForm::LoadLookups()
     {
-        const unsigned char* value = sqlite3_column_text(stmt, index);
-        if (value == nullptr)
-        {
-            return System::String::Empty;
-        }
+        System::Data::DataTable^ categories = DbHelpers::LoadLookupTable(databasePath, L"Categories");
+        System::Data::DataTable^ locations = DbHelpers::LoadLookupTable(databasePath, L"Locations");
 
-        return gcnew System::String(reinterpret_cast<const char*>(value), 0, sqlite3_column_bytes(stmt, index), Encoding::UTF8);
-    }
-}
+        categoryComboBox->DisplayMember = L"name";
+        categoryComboBox->ValueMember = L"id";
+        categoryComboBox->DataSource = categories;
 
-namespace VetPharm {
-    void AddProductForm::InitializeComboBoxes()
-    {
-        unit_combo_box->Items->Clear();
-        unit_combo_box->Items->AddRange(gcnew cli::array<System::Object^> {
-            L"миллилитры",
-            L"граммы",
-            L"таблетки",
-            L"штуки"
-        });
-        unit_combo_box->SelectedIndex = 0;
+        locationComboBox->DisplayMember = L"name";
+        locationComboBox->ValueMember = L"id";
+        locationComboBox->DataSource = locations;
     }
 
-    void AddProductForm::ConfigureLookupComboBox(System::Windows::Forms::ComboBox^ comboBox, DataTable^ sourceTable)
+    void AddProductForm::SetProductValues(int productId, System::String^ name, int categoryId, int locationId, int packagingSize, int quantity, System::String^ unit, int price)
     {
-        comboBox->DataSource = sourceTable;
-        comboBox->DisplayMember = L"name";
-        comboBox->ValueMember = L"id";
-
-        if (sourceTable != nullptr && sourceTable->Rows->Count > 0)
-        {
-            comboBox->SelectedIndex = 0;
-        }
+        this->productId = productId;
+        nameTextBox->Text = name;
+        categoryComboBox->SelectedValue = categoryId;
+        locationComboBox->SelectedValue = locationId;
+        packagingNumeric->Value = packagingSize;
+        quantityNumeric->Value = quantity;
+        unitComboBox->Text = unit;
+        priceNumeric->Value = price;
     }
 
-    void AddProductForm::LoadLookupData()
+    bool AddProductForm::ValidateInput()
     {
-        categoriesTable = gcnew DataTable();
-        locationsTable = gcnew DataTable();
-
-        sqlite3* db = nullptr;
-        if (sqlite3_open(ToUtf8String(databasePath).c_str(), &db) != SQLITE_OK)
+        if (System::String::IsNullOrWhiteSpace(ProductName))
         {
-            MessageBox::Show(L"Не удалось открыть БД для загрузки справочников.", L"Ошибка",
-                MessageBoxButtons::OK, MessageBoxIcon::Error);
-            return;
-        }
-
-        const char* categorySql = "SELECT id, name FROM Categories ORDER BY name";
-        sqlite3_stmt* categoryStmt = nullptr;
-        if (sqlite3_prepare_v2(db, categorySql, -1, &categoryStmt, nullptr) == SQLITE_OK)
-        {
-            categoriesTable->Columns->Add(L"id", Int32::typeid);
-            categoriesTable->Columns->Add(L"name", String::typeid);
-
-            while (sqlite3_step(categoryStmt) == SQLITE_ROW)
-            {
-                DataRow^ row = categoriesTable->NewRow();
-                row[L"id"] = sqlite3_column_int(categoryStmt, 0);
-                row[L"name"] = FromUtf8Column(categoryStmt, 1);
-                categoriesTable->Rows->Add(row);
-            }
-        }
-        sqlite3_finalize(categoryStmt);
-
-        const char* locationSql = "SELECT id, name FROM Locations ORDER BY name";
-        sqlite3_stmt* locationStmt = nullptr;
-        if (sqlite3_prepare_v2(db, locationSql, -1, &locationStmt, nullptr) == SQLITE_OK)
-        {
-            locationsTable->Columns->Add(L"id", Int32::typeid);
-            locationsTable->Columns->Add(L"name", String::typeid);
-
-            while (sqlite3_step(locationStmt) == SQLITE_ROW)
-            {
-                DataRow^ row = locationsTable->NewRow();
-                row[L"id"] = sqlite3_column_int(locationStmt, 0);
-                row[L"name"] = FromUtf8Column(locationStmt, 1);
-                locationsTable->Rows->Add(row);
-            }
-        }
-        sqlite3_finalize(locationStmt);
-        sqlite3_close(db);
-
-        ConfigureLookupComboBox(category_combo_box, categoriesTable);
-        ConfigureLookupComboBox(location_combo_box, locationsTable);
-
-        add_button->Enabled = categoriesTable->Rows->Count > 0 && locationsTable->Rows->Count > 0;
-        if (!add_button->Enabled)
-        {
-            MessageBox::Show(L"Для добавления товара в БД должны быть заполнены таблицы Categories и Locations.",
-                L"Нет справочников", MessageBoxButtons::OK, MessageBoxIcon::Warning);
-        }
-    }
-
-    bool AddProductForm::InsertProductIntoDatabase(int% newProductId)
-    {
-        sqlite3* db = nullptr;
-        if (sqlite3_open(ToUtf8String(databasePath).c_str(), &db) != SQLITE_OK)
-        {
-            MessageBox::Show(L"Не удалось открыть БД.", L"Ошибка",
-                MessageBoxButtons::OK, MessageBoxIcon::Error);
+            System::Windows::Forms::MessageBox::Show(L"Введите название препарата.", L"Проверка",
+                System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Warning);
             return false;
         }
 
-        const char* sql = "INSERT INTO Products (name, category, packaging_size, quantity, unit, location, price) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-        sqlite3_stmt* stmt = nullptr;
-        if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+        if (SelectedCategoryId == 0 || SelectedLocationId == 0)
         {
-            MessageBox::Show(L"Не удалось подготовить INSERT-запрос.", L"Ошибка",
-                MessageBoxButtons::OK, MessageBoxIcon::Error);
-            sqlite3_close(db);
+            System::Windows::Forms::MessageBox::Show(L"Выберите категорию и локацию из базы данных.", L"Проверка",
+                System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Warning);
             return false;
         }
 
-        std::string nameUtf8 = ToUtf8String(name_text_box->Text->Trim());
-        std::string unitUtf8 = ToUtf8String(unit_combo_box->Text);
-
-        sqlite3_bind_text(stmt, 1, nameUtf8.c_str(), static_cast<int>(nameUtf8.size()), SQLITE_TRANSIENT);
-        sqlite3_bind_int(stmt, 2, safe_cast<int>(category_combo_box->SelectedValue));
-        sqlite3_bind_int(stmt, 3, Decimal::ToInt32(packaging_size_numericUpDown->Value));
-        sqlite3_bind_int(stmt, 4, Decimal::ToInt32(quantity_numericUpDown->Value));
-        sqlite3_bind_text(stmt, 5, unitUtf8.c_str(), static_cast<int>(unitUtf8.size()), SQLITE_TRANSIENT);
-        sqlite3_bind_int(stmt, 6, safe_cast<int>(location_combo_box->SelectedValue));
-        sqlite3_bind_int(stmt, 7, Decimal::ToInt32(price_numericUpDown->Value));
-
-        bool success = sqlite3_step(stmt) == SQLITE_DONE;
-        if (success)
-        {
-            newProductId = static_cast<int>(sqlite3_last_insert_rowid(db));
-        }
-        else
-        {
-            MessageBox::Show(L"Ошибка при сохранении товара в БД.", L"Ошибка",
-                MessageBoxButtons::OK, MessageBoxIcon::Error);
-        }
-
-        sqlite3_finalize(stmt);
-        sqlite3_close(db);
-        return success;
+        return true;
     }
 
-    System::Void AddProductForm::exit_button_Click(System::Object^ sender, System::EventArgs^ e)
+    void AddProductForm::AddLabel(System::String^ text, int x, int y)
     {
-        Close();
+        System::Windows::Forms::Label^ label = gcnew System::Windows::Forms::Label();
+        label->Text = text;
+        label->Location = System::Drawing::Point(x, y);
+        label->Size = System::Drawing::Size(160, 22);
+        label->Font = gcnew System::Drawing::Font(L"Segoe UI Semibold", 10.0f);
+        this->Controls->Add(label);
     }
 
-    System::Void AddProductForm::add_button_Click(System::Object^ sender, System::EventArgs^ e)
+    System::Windows::Forms::TextBox^ AddProductForm::AddTextBox(int x, int y, int width)
     {
-        String^ productName = name_text_box->Text->Trim();
-        if (String::IsNullOrWhiteSpace(productName))
-        {
-            MessageBox::Show(L"Введите название товара!", L"Ошибка",
-                MessageBoxButtons::OK, MessageBoxIcon::Error);
-            return;
-        }
-
-        if (category_combo_box->SelectedValue == nullptr || location_combo_box->SelectedValue == nullptr)
-        {
-            MessageBox::Show(L"Выберите категорию и локацию из базы данных.", L"Ошибка",
-                MessageBoxButtons::OK, MessageBoxIcon::Error);
-            return;
-        }
-
-        int newProductId = 0;
-        if (!InsertProductIntoDatabase(newProductId))
-        {
-            return;
-        }
-
-        DataRow^ newRow = productsTable->NewRow();
-        newRow[L"id"] = newProductId;
-        newRow[L"Название"] = productName;
-        newRow[L"Категория"] = category_combo_box->Text;
-        newRow[L"Фасовка"] = Decimal::ToInt32(packaging_size_numericUpDown->Value);
-        newRow[L"Количество"] = Decimal::ToInt32(quantity_numericUpDown->Value);
-        newRow[L"Единица"] = unit_combo_box->Text;
-        newRow[L"Локация"] = location_combo_box->Text;
-        newRow[L"Цена"] = Decimal::ToInt32(price_numericUpDown->Value);
-        productsTable->Rows->Add(newRow);
-
-        MessageBox::Show(
-            String::Format(L"Товар успешно добавлен.\nID: {0}", newProductId),
-            L"Успешно", MessageBoxButtons::OK, MessageBoxIcon::Information);
-        Close();
+        System::Windows::Forms::TextBox^ box = gcnew System::Windows::Forms::TextBox();
+        box->Location = System::Drawing::Point(x, y);
+        box->Size = System::Drawing::Size(width, 30);
+        Theme::StyleInput(box);
+        this->Controls->Add(box);
+        return box;
     }
 }
